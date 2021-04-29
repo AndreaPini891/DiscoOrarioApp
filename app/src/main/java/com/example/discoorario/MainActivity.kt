@@ -1,62 +1,65 @@
 package com.example.discoorario
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.maps.CameraUpdateFactory
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.MapsInitializer
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import kotlinx.android.synthetic.main.activity_main.*
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 
-class MainActivity : AppCompatActivity() {
 
-    val position = LatLng(-33.920455, 18.466941)
+class MainActivity : AppCompatActivity(), OnMapReadyCallback{
+
+    private val LOCATION_PERMISSION_REQUEST = 1
+    private lateinit var map: GoogleMap
+
+    private fun getLocationAccess() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            map.isMyLocationEnabled = true
+        } else
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST)
+    }
+
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == LOCATION_PERMISSION_REQUEST) {
+            if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return
+                }
+                map.isMyLocationEnabled = true
+            } else {
+                Toast.makeText(this, "User has not granted location access permission", Toast.LENGTH_LONG).show()
+                finish()
+            }
+        }
+    }
+
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        map = googleMap
+        getLocationAccess()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        val mapFragment = supportFragmentManager
+            .findFragmentById(R.id.map_view) as SupportMapFragment
+        mapFragment.getMapAsync(this)
 
-        with(mapView) {
-            // Initialise the MapView
-            onCreate(null)
-            // Set the map ready callback to receive the GoogleMap object
-            getMapAsync{
-                MapsInitializer.initialize(applicationContext)
-                setMapLocation(it)
-            }
-        }
-    }
-
-    private fun setMapLocation(map : GoogleMap) {
-        with(map) {
-            moveCamera(CameraUpdateFactory.newLatLngZoom(position, 13f))
-            addMarker(MarkerOptions().position(position))
-            mapType = GoogleMap.MAP_TYPE_NORMAL
-            setOnMapClickListener {
-                Toast.makeText(this@MainActivity, "Clicked on map", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        mapView.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mapView.onPause()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mapView.onDestroy()
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        mapView.onLowMemory()
     }
 }
