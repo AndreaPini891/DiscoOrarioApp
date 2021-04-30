@@ -1,8 +1,13 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.discoorario
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -10,10 +15,12 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback{
-
+    val TIMER_ACTIVITY = 1
+    val TAG = "MainActivity"
     private val LOCATION_PERMISSION_REQUEST = 1
     private lateinit var map: GoogleMap
 
@@ -61,5 +68,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback{
             .findFragmentById(R.id.map_view) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+    }
+
+    fun openActivityTimer(v: View){
+        Log.v(TAG, "onClick")
+        val intent = Intent(this@MainActivity, TimerActivity::class.java)
+
+        startActivityForResult(intent, TIMER_ACTIVITY)
     }
 }

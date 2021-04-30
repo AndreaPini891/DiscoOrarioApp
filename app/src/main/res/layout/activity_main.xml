@@ -19,6 +19,7 @@
         android:id="@+id/SetDiscButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:onClick="openActivityTimer"
         android:text="Set Time"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
