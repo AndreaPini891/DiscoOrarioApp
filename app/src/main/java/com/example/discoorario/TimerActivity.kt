@@ -1,6 +1,5 @@
 package com.example.discoorario
 
-
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -26,7 +25,7 @@ class TimerActivity : AppCompatActivity() {
         imageViewSwitch.setOnClickListener {
             if (!isRunning){
                 if (editTextCount!!.text.toString().isEmpty()){
-                    Toast.makeText(this,"Tiempo vacio",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,"Inserisci tempo",Toast.LENGTH_SHORT).show()
                 }else{
                     startCounting()
                 }
@@ -67,6 +66,9 @@ class TimerActivity : AppCompatActivity() {
             }
 
             override fun onTick(millisUntilFinished: Long) {
+
+
+
                 textViewCount.text = (millisUntilFinished * 0.001f).roundToInt().toString()
                 progressBar.progress = Math.round(millisUntilFinished * 0.001f)
             }

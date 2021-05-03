@@ -5,6 +5,7 @@ package com.example.discoorario
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Address
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -19,6 +20,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback{
+    val LOCATION_ACTIVITY = 1
     val TIMER_ACTIVITY = 1
     val TAG = "MainActivity"
     private val LOCATION_PERMISSION_REQUEST = 1
@@ -64,8 +66,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback{
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map_view) as SupportMapFragment
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map_view) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
     }
@@ -76,4 +77,27 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback{
 
         startActivityForResult(intent, TIMER_ACTIVITY)
     }
+
+
+    fun openLocationActivity(v: View){
+        Log.v(TAG, "onClick")
+        val intent = Intent(this@MainActivity, LocationActivity::class.java)
+
+        startActivityForResult(intent, LOCATION_ACTIVITY)
+    }
+
+ // open fun getCountryCode(): String{
+ //     var a = getCountryCode()
+ //     a.toString()
+ // }
+
+
+
+
+
+
+
+
+
+
 }

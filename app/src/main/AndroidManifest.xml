@@ -35,6 +35,7 @@
         </activity>
 
         <activity android:name=".TimerActivity"></activity>
+        <activity android:name=".LocationActivity"></activity>
 
     </application>
 
