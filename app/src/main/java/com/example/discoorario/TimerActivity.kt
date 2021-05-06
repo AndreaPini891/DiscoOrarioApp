@@ -37,7 +37,7 @@ class TimerActivity : AppCompatActivity() {
         imageViewReset.setOnClickListener {
             stopCounting()
             isRunning = false
-            imageViewSwitch.setImageResource(R.drawable.play_foreground)
+            imageViewSwitch.setImageResource(R.drawable.start_foreground)
             textViewCount!!.text="" + timeMil / 1000
             progressBar.progress = timeMil.toInt() / 1000
             progressBar.max = timeMil.toInt() / 1000
@@ -47,7 +47,7 @@ class TimerActivity : AppCompatActivity() {
     }
 
     private fun stopCounting() {
-        imageViewSwitch.setImageResource(R.drawable.play_foreground)
+        imageViewSwitch.setImageResource(R.drawable.start_foreground)
         isRunning = false
         countDownTimer!!.cancel()
 

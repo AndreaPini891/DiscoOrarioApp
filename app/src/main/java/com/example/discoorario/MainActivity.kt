@@ -3,9 +3,11 @@
 package com.example.discoorario
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Address
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -13,10 +15,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_save_pos.*
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback{
@@ -86,18 +92,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback{
         startActivityForResult(intent, LOCATION_ACTIVITY)
     }
 
- // open fun getCountryCode(): String{
- //     var a = getCountryCode()
- //     a.toString()
- // }
 
+ //   private var mGoogleApiClient: GoogleApiClient? = null
+ //   private var mLocation: Location? = null
 
+/*
+    @SuppressLint("MissingPermission")
+    private fun getLocation(): View.OnClickListener? {
+        mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
 
-
-
-
-
-
-
+        if (mLocation != null) {
+            textView1.text = mLocation!!.latitude.toString()
+            textView2.text = mLocation!!.longitude.toString()
+        } else {
+            Toast.makeText(this, "Location not Detected", Toast.LENGTH_SHORT).show()
+        }
+        SavePosButton.setOnClickListener(getLocation())
+    }
+  */
 
 }

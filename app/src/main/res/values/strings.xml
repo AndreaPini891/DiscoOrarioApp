@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">DiscoOrario</string>
     <string name="map_key">AIzaSyCbb0pPb_ks2_rz0N_3u7w0P5khZdfYCQw</string>
+
+    <string name="SavePosButton">Save Position</string>
+    <string name="SetDiscButton">Set Time</string>
+    <string name="EditTextCount">Insert time in seconds</string>
+
 </resources>
