@@ -31,7 +31,7 @@
         android:id="@+id/textViewCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="00"
+        android:text="0"
         android:textColor="@color/black"
         android:textSize="80sp"
         app:layout_constraintBottom_toBottomOf="@+id/progressBar"
@@ -40,56 +40,25 @@
         app:layout_constraintStart_toStartOf="@+id/progressBar"
         app:layout_constraintTop_toTopOf="@+id/progressBar" />
 
-    <EditText
-        android:id="@+id/editTextCount"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:layout_marginBottom="20dp"
-        android:gravity="center_horizontal"
-        android:hint="@string/EditTextCount"
-        android:inputType="number"
-        android:textAlignment="center"
-        app:layout_constraintBottom_toTopOf="@+id/progressBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+    <ImageView
+        android:id="@+id/imageViewDelete"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/progressBar"
+        app:layout_constraintTop_toBottomOf="@+id/progressBar"
+        app:srcCompat="@drawable/stop_foreground"
+        tools:ignore="VectorDrawableCompat"
+        app:tint="@color/design_default_color_error" />
 
     <ImageView
-        android:id="@+id/imageViewSwitch"
-        android:layout_width="49dp"
-        android:layout_height="55dp"
-        android:layout_marginBottom="28dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:id="@+id/imageViewSet"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.213"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
-        app:srcCompat="@drawable/start_foreground"
-        tools:ignore="VectorDrawableCompat" />
-
-    <ImageView
-        android:id="@+id/imageViewReset"
-        android:layout_width="58dp"
-        android:layout_height="53dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.812"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.95"
+        app:layout_constraintEnd_toEndOf="@+id/progressBar"
+        app:layout_constraintTop_toBottomOf="@+id/progressBar"
         app:srcCompat="@drawable/restart_foreground"
         tools:ignore="VectorDrawableCompat" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

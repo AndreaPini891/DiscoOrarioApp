@@ -1,17 +1,20 @@
 package com.example.discoorario
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_main.*
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import kotlinx.android.synthetic.main.activity_timer.*
+import java.util.*
 import kotlin.math.roundToInt
 
-var isRunning = false
-var timeMil : Long = 0
-var countDownTimer : CountDownTimer ?= null
+var timeMin: Long = 0
+var countDownTimer: CountDownTimer? = null
 
 class TimerActivity : AppCompatActivity() {
 
@@ -20,60 +23,142 @@ class TimerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_timer)
 
+        val sharedPreferences: SharedPreferences = this.getSharedPreferences(
+            "sharedpreference",
+            Context.MODE_PRIVATE
+        )
+
+        val calendar: Calendar = Calendar.getInstance()
+        val currentHour: Int = calendar.get(Calendar.HOUR_OF_DAY)
+        val currentMinutes: Int = calendar.get(Calendar.MINUTE)
+
+        val currentTime = currentHour * 60 + currentMinutes
+
+        if (sharedPreferences.getInt(
+                "startMinutes",
+                0
+            ) != 0 && sharedPreferences.getInt("startMinutes", 0) < currentTime
+        ) {
+            //.......
+            //far partire
 
 
-        imageViewSwitch.setOnClickListener {
-            if (!isRunning){
-                if (editTextCount!!.text.toString().isEmpty()){
-                    Toast.makeText(this,"Inserisci tempo",Toast.LENGTH_SHORT).show()
-                }else{
-                    startCounting()
-                }
-            }else{
-                stopCounting()
-            }
         }
 
-        imageViewReset.setOnClickListener {
+        imageViewDelete.setOnClickListener {
             stopCounting()
+        }
+
+        imageViewSet.setOnClickListener {
+
+            val calendar: Calendar = Calendar.getInstance()
+            val currentHour: Int = calendar.get(Calendar.HOUR_OF_DAY)
+            val currentMinutes: Int = calendar.get(Calendar.MINUTE)
+
+            val materialTimePicker = MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setTitleText(R.string.text_fine_sosta)
+                .setHour(currentHour)
+                .setMinute(currentMinutes)
+                .build()
+
+            materialTimePicker.show(supportFragmentManager, "timePicker_fragment")
+
+            materialTimePicker.addOnPositiveButtonClickListener {
+
+                if(countDownTimer != null)
+                    countDownTimer!!.cancel()
+
+
+                val editor: SharedPreferences.Editor = sharedPreferences.edit()
+
+                val diff = sharedPreferences.getInt(
+                    "stopMinutes",
+                    0
+                ) - sharedPreferences.getInt("startMinutes", 0)
+
+                val calendar: Calendar = Calendar.getInstance()
+                val currentHour: Int = calendar.get(Calendar.HOUR_OF_DAY)
+                val currentMinutes: Int = calendar.get(Calendar.MINUTE)
+
+                val hours: Int = materialTimePicker.hour
+                val minutes: Int = materialTimePicker.minute
+
+                val stopMinutes = hours * 60 + minutes
+                val startMinutes = currentHour * 60 + currentMinutes
+
+
+
+                editor.putInt("startMinutes", startMinutes)
+                editor.putInt("stopMinutes", stopMinutes)
+                editor.putFloat("latitude", intent.getFloatExtra("latitude", 0f))
+                editor.putFloat("longitude", intent.getFloatExtra("longitude", 0f))
+                editor.apply()
+                editor.commit()
+
+                startCounting(diff)
+
+
+            }
+
+            /*stopCounting()
             isRunning = false
             imageViewSwitch.setImageResource(R.drawable.start_foreground)
             textViewCount!!.text="" + timeMil / 1000
             progressBar.progress = timeMil.toInt() / 1000
-            progressBar.max = timeMil.toInt() / 1000
+            progressBar.max = timeMil.toInt() / 1000*/
         }
 
 
     }
 
     private fun stopCounting() {
-        imageViewSwitch.setImageResource(R.drawable.start_foreground)
-        isRunning = false
-        countDownTimer!!.cancel()
+
+        if(countDownTimer != null)
+            countDownTimer!!.cancel()
+
+        val sharedPreferences: SharedPreferences = this.getSharedPreferences(
+            "sharedpreference",
+            Context.MODE_PRIVATE
+        )
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.putInt("startMinutes", -1)
+        editor.putInt("stopMinutes", -1)
+        editor.apply()
+        editor.commit()
+
+        textViewCount.text = "0"
+        progressBar.max = 100
+        progressBar.progress = 100
+
+        Toast.makeText(this, "La sosta è stata annullata", Toast.LENGTH_LONG).show()
 
     }
 
-    private fun startCounting() {
-        val txtInput = editTextCount!!.text.toString()
-        val timeInput = txtInput.toLong() * 1000
-        timeMil = timeInput
-        progressBar.max = timeMil.toInt() / 1000
-        imageViewSwitch.setImageResource(R.drawable.stop_foreground)
-        isRunning = true
-        countDownTimer = object  : CountDownTimer(timeMil,1000){
+    private fun startCounting(diff: Int) {
+        timeMin = diff.toLong()
+        val mills = timeMin.toInt() * 60000
+        progressBar.max = mills
+
+        countDownTimer = object : CountDownTimer(mills.toLong(), 1000) {
             override fun onFinish() {
+
+                //parcheggio scaduto
 
             }
 
             override fun onTick(millisUntilFinished: Long) {
 
+                // val diff min rimasti = mills - millisUntilFinished ....quanti mls ti rimangono
 
-
+                //if(mls riman < 5 min) textview.text = " Il parcheggo sta per scadere"
                 textViewCount.text = (millisUntilFinished * 0.001f).roundToInt().toString()
-                progressBar.progress = Math.round(millisUntilFinished * 0.001f)
+                progressBar.progress = (millisUntilFinished * 0.001f).roundToInt()
             }
         }.start()
 
         countDownTimer!!.start()
     }
+
 }
+

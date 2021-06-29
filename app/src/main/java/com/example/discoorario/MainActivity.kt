@@ -3,10 +3,10 @@
 package com.example.discoorario
 
 import android.Manifest
-import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.location.Address
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -15,36 +15,99 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_save_pos.*
 
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback{
-    val LOCATION_ACTIVITY = 1
+class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
+    GoogleApiClient.OnConnectionFailedListener,
+    LocationListener {
     val TIMER_ACTIVITY = 1
     val TAG = "MainActivity"
     private val LOCATION_PERMISSION_REQUEST = 1
     private lateinit var map: GoogleMap
+    private var mGoogleApiClient: GoogleApiClient? = null
+    var mLocationRequest: LocationRequest? = null
+    lateinit var lastMarkOption: MarkerOptions
+    var mCurrLocationMarker: Marker? = null
+    var longitude : Float = 0.0F
+    var latitude : Float = 0.0F
 
-    private fun getLocationAccess() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            map.isMyLocationEnabled = true
-        } else
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
     }
 
+    override fun onResume() {
+        super.onResume()
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map_view) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        //stop location updates when Activity is no longer active
+        if (mGoogleApiClient != null) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this)
+        }
+    }
+
+    private fun getLocationAccess() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            map.isMyLocationEnabled = true
+
+            buildGoogleApiClient()
+        } else
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST
+            )
+    }
+
+    @Synchronized
+    private fun buildGoogleApiClient() {
+        mGoogleApiClient = GoogleApiClient.Builder(this)
+            .addConnectionCallbacks(this)
+            .addOnConnectionFailedListener(this)
+            .addApi(LocationServices.API)
+            .build()
+        mGoogleApiClient!!.connect()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == LOCATION_PERMISSION_REQUEST) {
             if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
                     // TODO: Consider calling
                     //    ActivityCompat#requestPermissions
                     // here to request the missing permissions, and then overriding
@@ -55,60 +118,99 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback{
                     return
                 }
                 map.isMyLocationEnabled = true
+
+                buildGoogleApiClient()
             } else {
-                Toast.makeText(this, "User has not granted location access permission", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this,
+                    "User has not granted location access permission",
+                    Toast.LENGTH_LONG
+                ).show()
                 finish()
             }
         }
     }
 
 
+    fun setNewPosition(latLng: LatLng): MarkerOptions? {
+        lastMarkOption = MarkerOptions()
+            .position(latLng)
+            .title("My car is here!")
+
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+
+        return lastMarkOption
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         getLocationAccess()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map_view) as SupportMapFragment
-        mapFragment.getMapAsync(this)
 
     }
 
-    fun openActivityTimer(v: View){
+
+    fun openActivityTimer(v: View) {
         Log.v(TAG, "onClick")
         val intent = Intent(this@MainActivity, TimerActivity::class.java)
-
+        intent.putExtra("longitude", longitude)
+        intent.putExtra("latitude", latitude)
         startActivityForResult(intent, TIMER_ACTIVITY)
     }
 
+    override fun onConnected(p0: Bundle?) {
 
-    fun openLocationActivity(v: View){
-        Log.v(TAG, "onClick")
-        val intent = Intent(this@MainActivity, LocationActivity::class.java)
-
-        startActivityForResult(intent, LOCATION_ACTIVITY)
-    }
-
-
- //   private var mGoogleApiClient: GoogleApiClient? = null
- //   private var mLocation: Location? = null
-
-/*
-    @SuppressLint("MissingPermission")
-    private fun getLocation(): View.OnClickListener? {
-        mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
-
-        if (mLocation != null) {
-            textView1.text = mLocation!!.latitude.toString()
-            textView2.text = mLocation!!.longitude.toString()
-        } else {
-            Toast.makeText(this, "Location not Detected", Toast.LENGTH_SHORT).show()
+        mLocationRequest = LocationRequest()
+        mLocationRequest!!.interval = 1000
+        mLocationRequest!!.fastestInterval = 1000
+        mLocationRequest!!.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient,
+                mLocationRequest,
+                this
+            )
         }
-        SavePosButton.setOnClickListener(getLocation())
     }
-  */
+
+    override fun onConnectionSuspended(p0: Int) {
+    }
+
+    override fun onConnectionFailed(p0: ConnectionResult) {
+    }
+
+    override fun onLocationChanged(location: Location) {
+
+        if (mCurrLocationMarker != null) {
+            mCurrLocationMarker!!.remove();
+        }
+
+
+        val sharedPreferences: SharedPreferences = this.getSharedPreferences("sharedpreference",
+            Context.MODE_PRIVATE)
+
+        if(sharedPreferences.getInt("startMinutes", 0) == 0 && sharedPreferences.getInt("stopMinutes", 0) == 0)
+        {
+            val currentPosition = LatLng(location.latitude, location.longitude)
+
+            latitude = location.latitude.toFloat()
+            longitude = location.longitude.toFloat()
+
+            mCurrLocationMarker = map.addMarker(
+                setNewPosition(currentPosition)?.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon))
+            )
+        }
+        else
+        //timer già attivo
+
+        {
+            val currentPosition = LatLng(sharedPreferences.getFloat("latitude", 0f).toDouble(), sharedPreferences.getFloat("longitude", 0f).toDouble())
+
+            mCurrLocationMarker = map.addMarker(
+                setNewPosition(currentPosition)?.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon))
+            )
+        }
+
+    }
+
 
 }
