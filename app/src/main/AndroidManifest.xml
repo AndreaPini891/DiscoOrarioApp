@@ -34,8 +34,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".TimerActivity"></activity>
-        <activity android:name=".LocationActivity"></activity>
+        <activity android:name=".TimerActivity" />
 
     </application>
 

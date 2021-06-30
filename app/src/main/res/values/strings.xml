@@ -3,7 +3,9 @@
     <string name="map_key">AIzaSyCbb0pPb_ks2_rz0N_3u7w0P5khZdfYCQw</string>
 
     <string name="SavePosButton">Save Position</string>
-    <string name="SetDiscButton">Set Time</string>
+    <string name="SetDiscButton">Park</string>
+    <string name="text_fine_sosta">Select the parking stop time</string>
     <string name="EditTextCount">Insert time in seconds</string>
+    <string name="text_time_running_out">Time is running out!</string>
 
 </resources>
