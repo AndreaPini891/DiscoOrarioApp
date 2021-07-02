@@ -128,8 +128,8 @@ class TimerActivity : AppCompatActivity() {
         editor.commit()
 
         textViewCount.text = "0"
-        progressBar.max = 100
-        progressBar.progress = 100
+        progressBar.max = 3600
+        progressBar.progress = 3600
 
         Toast.makeText(this, "The parking stop has been canceled", Toast.LENGTH_LONG).show()
 
@@ -143,13 +143,14 @@ class TimerActivity : AppCompatActivity() {
         countDownTimer = object : CountDownTimer(mills.toLong(), 1000) {
             override fun onFinish() {
 
+                //parcheggio scaduto
                 Toast.makeText(this@TimerActivity,"Parking meter time expired",Toast.LENGTH_LONG).show()
             }
 
             @SuppressLint("SetTextI18n")
             override fun onTick(millisUntilFinished: Long) {
 
-                // val differenza minuti rimasti = mills - millisUntilFinished = quanti mls ti rimangono
+                // minuti rimasti = millisUntilFinished/1000 = quanti mls rimangono
 
                 if((millisUntilFinished/1000) < 50 ) textViewExpire.text = "Time is running out!"
                 textViewCount.text = (millisUntilFinished * 0.001f).roundToInt().toString()
