@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     var mLocationRequest: LocationRequest? = null
     lateinit var lastMarkOption: MarkerOptions
     var mCurrLocationMarker: Marker? = null
+    var previusLocation: Location? = null
     var longitude : Float = 0.0F
     var latitude : Float = 0.0F
 
@@ -84,12 +85,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
 
     @Synchronized
     private fun buildGoogleApiClient() {
-        mGoogleApiClient = GoogleApiClient.Builder(this)
-            .addConnectionCallbacks(this)
-            .addOnConnectionFailedListener(this)
-            .addApi(LocationServices.API)
-            .build()
-        mGoogleApiClient!!.connect()
+
+        if(mGoogleApiClient == null) {
+            mGoogleApiClient = GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build()
+            mGoogleApiClient!!.connect()
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -138,6 +142,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
             .title("My car is here!")
 
         map.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+        // Zoom in, animating the camera.
+        map.animateCamera(CameraUpdateFactory.zoomIn())
+        map.animateCamera(CameraUpdateFactory.zoomTo(20f), 3000, null)
 
         return lastMarkOption
     }
@@ -180,34 +187,36 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
 
     override fun onLocationChanged(location: Location) {
 
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker!!.remove();
-        }
+        if ((previusLocation?.latitude != location.latitude) || (previusLocation?.longitude != location.longitude)) {
+            mCurrLocationMarker?.remove()
+            previusLocation = location
 
 
-        val sharedPreferences: SharedPreferences = this.getSharedPreferences("sharedpreference",
-            Context.MODE_PRIVATE)
+            val sharedPreferences: SharedPreferences = this.getSharedPreferences("sharedpreference",
+                Context.MODE_PRIVATE)
 
-        if(sharedPreferences.getInt("startMinutes", 0) == 0 && sharedPreferences.getInt("stopMinutes", 0) == 0)
-        {
-            val currentPosition = LatLng(location.latitude, location.longitude)
+            if(sharedPreferences.getInt("startMinutes", 0) == 0 && sharedPreferences.getInt("stopMinutes", 0) == 0)
+            {
+                val currentPosition = LatLng(location.latitude, location.longitude)
 
-            latitude = location.latitude.toFloat()
-            longitude = location.longitude.toFloat()
+                latitude = location.latitude.toFloat()
+                longitude = location.longitude.toFloat()
 
-            mCurrLocationMarker = map.addMarker(
-                setNewPosition(currentPosition)?.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon))
-            )
-        }
-        else
-        //timer già attivo
+                mCurrLocationMarker = map.addMarker(
+                    setNewPosition(currentPosition)?.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon))
+                )
 
-        {
-            val currentPosition = LatLng(sharedPreferences.getFloat("latitude", 0f).toDouble(), sharedPreferences.getFloat("longitude", 0f).toDouble())
+            }
+            else
+            //timer già attivo
 
-            mCurrLocationMarker = map.addMarker(
-                setNewPosition(currentPosition)?.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon))
-            )
+            {
+                val currentPosition = LatLng(sharedPreferences.getFloat("latitude", 0f).toDouble(), sharedPreferences.getFloat("longitude", 0f).toDouble())
+
+                mCurrLocationMarker = map.addMarker(
+                    setNewPosition(currentPosition)?.icon(BitmapDescriptorFactory.fromResource(R.drawable.car_icon))
+                )
+            }
         }
 
     }

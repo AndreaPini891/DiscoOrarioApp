@@ -15,6 +15,7 @@ import kotlin.math.roundToInt
 
 var timeMin: Long = 0
 var countDownTimer: CountDownTimer? = null
+var running = false
 
 class TimerActivity : AppCompatActivity() {
 
@@ -39,7 +40,8 @@ class TimerActivity : AppCompatActivity() {
                 0
             ) != 0 && sharedPreferences.getInt("startMinutes", 0) < currentTime
         ) {
-            //.......
+
+            
             //far partire
 
 
@@ -67,15 +69,12 @@ class TimerActivity : AppCompatActivity() {
             materialTimePicker.addOnPositiveButtonClickListener {
 
                 if(countDownTimer != null)
+                {
+                    running = false
                     countDownTimer!!.cancel()
 
+                }
 
-                val editor: SharedPreferences.Editor = sharedPreferences.edit()
-
-                val diff = sharedPreferences.getInt(
-                    "stopMinutes",
-                    0
-                ) - sharedPreferences.getInt("startMinutes", 0)
 
                 val calendar: Calendar = Calendar.getInstance()
                 val currentHour: Int = calendar.get(Calendar.HOUR_OF_DAY)
@@ -87,14 +86,18 @@ class TimerActivity : AppCompatActivity() {
                 val stopMinutes = hours * 60 + minutes
                 val startMinutes = currentHour * 60 + currentMinutes
 
-
-
+                val editor: SharedPreferences.Editor = sharedPreferences.edit()
                 editor.putInt("startMinutes", startMinutes)
                 editor.putInt("stopMinutes", stopMinutes)
                 editor.putFloat("latitude", intent.getFloatExtra("latitude", 0f))
                 editor.putFloat("longitude", intent.getFloatExtra("longitude", 0f))
                 editor.apply()
                 editor.commit()
+
+                val diff = sharedPreferences.getInt(
+                    "stopMinutes",
+                    0
+                ) - sharedPreferences.getInt("startMinutes", 0)
 
                 startCounting(diff)
 
@@ -138,11 +141,12 @@ class TimerActivity : AppCompatActivity() {
     private fun startCounting(diff: Int) {
         timeMin = diff.toLong()
         val mills = timeMin.toInt() * 60000
-        progressBar.max
+        progressBar.max = timeMin.toInt() * 60
 
         countDownTimer = object : CountDownTimer(mills.toLong(), 1000) {
             override fun onFinish() {
 
+                if(!running)
                 //parcheggio scaduto
                 Toast.makeText(this@TimerActivity,"Parking meter time expired",Toast.LENGTH_LONG).show()
             }
@@ -152,9 +156,15 @@ class TimerActivity : AppCompatActivity() {
 
                 // minuti rimasti = millisUntilFinished/1000 = quanti mls rimangono
 
+                running = true
                 if((millisUntilFinished/1000) < 50 ) textViewExpire.text = "Time is running out!"
                 textViewCount.text = (millisUntilFinished * 0.001f).roundToInt().toString()
                 progressBar.progress = (millisUntilFinished * 0.001f).roundToInt()
+
+                if((millisUntilFinished * 0.001f).roundToInt() == 1) {
+                    running = false
+                    textViewCount.text = "-"
+                }
             }
         }.start()
 
