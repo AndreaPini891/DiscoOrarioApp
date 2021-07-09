@@ -218,8 +218,5 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
                 )
             }
         }
-
     }
-
-
 }
