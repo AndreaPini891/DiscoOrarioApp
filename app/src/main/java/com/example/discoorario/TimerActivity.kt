@@ -40,11 +40,7 @@ class TimerActivity : AppCompatActivity() {
                 0
             ) != 0 && sharedPreferences.getInt("startMinutes", 0) < currentTime
         ) {
-
-            
             //far partire
-
-
         }
 
         imageViewDelete.setOnClickListener {
@@ -134,7 +130,7 @@ class TimerActivity : AppCompatActivity() {
         progressBar.max = 3600
         progressBar.progress = 3600
 
-        Toast.makeText(this, "The parking stop has been canceled", Toast.LENGTH_LONG).show()
+        Toast.makeText(this,(R.string.text_disco_cancellato), Toast.LENGTH_LONG).show()
 
     }
 
@@ -148,7 +144,8 @@ class TimerActivity : AppCompatActivity() {
 
                 if(!running)
                 //parcheggio scaduto
-                Toast.makeText(this@TimerActivity,"Parking meter time expired",Toast.LENGTH_LONG).show()
+                Toast.makeText(this@TimerActivity,(R.string.text_fine_tempo),Toast.LENGTH_LONG).show()
+                textViewExpire.text = resources.getString(R.string.text_fine_tempo)
             }
 
             @SuppressLint("SetTextI18n")
@@ -157,7 +154,7 @@ class TimerActivity : AppCompatActivity() {
                 // minuti rimasti = millisUntilFinished/1000 = quanti mls rimangono
 
                 running = true
-                if((millisUntilFinished/1000) < 50 ) textViewExpire.text = "Time is running out!"
+                if((millisUntilFinished/1000) < 50 ) textViewExpire.text = resources.getString(R.string.text_time_running_out)
                 textViewCount.text = (millisUntilFinished * 0.001f).roundToInt().toString()
                 progressBar.progress = (millisUntilFinished * 0.001f).roundToInt()
 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DiscoOrario</string>
+    <string name="map_key">AIzaSyCbb0pPb_ks2_rz0N_3u7w0P5khZdfYCQw</string>
+    <string name="SavePosButton">Salva la posizione</string>
+    <string name="SetDiscButton">Parcheggia</string>
+    <string name="text_fine_sosta">Seleziona la durata della sosta</string>
+    <string name="EditTextCount">inserisci tempo in secondi</string>
+    <string name="text_time_running_out">il tempo sta per scadere!</string>
+    <string name="text_fine_tempo">Il disco orario impostato è scaduto!</string>
+    <string name="text_disco_cancellato">il disco orario impostato è stato cancellato</string>
+</resources>

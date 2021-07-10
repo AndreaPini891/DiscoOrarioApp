@@ -7,5 +7,7 @@
     <string name="text_fine_sosta">Select the parking stop time</string>
     <string name="EditTextCount">Insert time in seconds</string>
     <string name="text_time_running_out">Time is running out!</string>
+    <string name="text_fine_tempo">Parking meter time expired!</string>
+    <string name="text_disco_cancellato">The parking stop has been canceled</string>
 
 </resources>
